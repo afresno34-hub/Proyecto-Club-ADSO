@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang = "es">
+    <head>
+       <meta charset = "UTF-8">
+       <title> CLUB ADSO </title>
+       <link rel="stylesheet" href="../assets/css/estilos.css">
+
+    </head>
+    <body>
+        <div class="Contenedor-Formulario">   
+            <h2> Registro de Asociado - Acerias</h2>
+
+            <form id="formRegistro" action="" method="POST">
+                <div class="grupo-input">   
+                    <label>Ingresar Documento:</label>
+                    <input id="documento" type="number" placeholder="Ingrese su documento">
+                </div>
+                <div class="grupo-input">   
+                    <label>Ingrese sus Nombres:</label>
+                    <input id="nombre" type="text" required placeholder="Ingrese sus Nombres Completos" >
+                </div>
+                <div class="grupo-input">
+                    <label>Ingrese sus Apellidos:</label>
+                    <input id="apellido" type="text" required placeholder="Ingrese sus Apellidos Completos">
+                </div>
+                 <div class="grupo-input">
+                    <label>Ingrese su Correo:</label>
+                    <input id="correo" type="email" required placeholder="Ingrese su Correo">
+                 </div>
+                 <div class="grupo-input">
+                    <label>Ingrese Su Fecha de Nacimiento:</label>
+                    <input id="fechaNacimiento" type="date" required>
+                 </div>
+                 <div class="grupo-input">
+                    <label>Genero:</label>
+                    <input radio id="genero" type="radio" name="genero" value="Masculino">
+                    <label>Masculino</label>
+                    <input radio id="genero" type="radio" name="genero" value="Femenino">
+                    <label>Femenino</label>
+                    <input radio id="genero" type="radio" name="genero" value="Otro">
+                    <label>Otro</label>
+                 </div>
+                 <div class="grupo-input">
+                    <label>Ingrese su Direccion:</label>
+                    <input id="direccion" type="text" required placeholder="Ingrese su Direccion">
+                 </div>
+                 <div class="grupo-input">
+                    <label>Selecciones su Ciudad:</label>
+                    <select id="ciudad" required>
+                        <option value="Duitama">Duitama</option>
+                        <option value="Sogamoso">Sogamoso</option>
+                        <option value="Tunja">Tunja</option>
+                    </select>
+                 </div>
+                 <div class="grupo-input">
+                    <label>Ingrese su Teléfono:</label>
+                    <input id="telefono" type="tel" required placeholder="Ingrese su Teléfono">
+                 </div>
+                 <div class="grupo-botones">       
+                    <button type="submit">Guardar</button>
+                    <button type="reset">Limpiar Formulario</button>
+                 </div>
+            </form>
+        </div>
+    </body>
+</html>

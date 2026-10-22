@@ -1,0 +1,70 @@
+*{
+    margin:0;
+    padding:0;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body{
+    background-color: blueviolet;
+    display: flex;
+    justify-content: center; /*Horizontal*/
+    align-items: center;
+    min-height: 100vh;
+}
+
+h2{
+    color: rgb(235, 235, 6);
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+    border-bottom: 2px solid rgb(6, 235, 140);
+}
+
+.grupo-input{
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.grupo.botones{
+    display:flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button{
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+input, select{
+    padding: 10px;
+    border: 4px solid #04fd43;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+input:focus, select:focus{
+    border-color: #6c63ff;
+    box-shadow: 0 0 3px rgba(37, 99, 255, 0.5);
+}
+
+.Contenedor-Formulario{
+    background-color: #90dfdf;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(208, 255, 0, 0.288);
+    width: 100%;
+    max-width: 500px;
+}
+
+button[type="submit"]{
+    background-color: #fde404;
+    color: #e20707;
+}
