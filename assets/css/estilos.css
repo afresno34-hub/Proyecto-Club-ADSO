@@ -68,3 +68,51 @@ button[type="submit"]{
     background-color: #fde404;
     color: #e20707;
 }
+
+/* Navegación por pestañas */
+.nav-pestanas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.pestana {
+    padding: 8px 12px;
+    background-color: #ffffff;
+    color: #333333;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    border: 2px solid #04fd43;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pestana:hover {
+    background-color: #fde404;
+    color: #e20707;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.pestana.activa {
+    background-color: #fde404;
+    color: #e20707;
+    border-color: #e20707;
+}
+
+.pestana.volver {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #666666;
+}
+
+.pestana.volver:hover {
+    background-color: #000000;
+    color: #04fd43;
+}

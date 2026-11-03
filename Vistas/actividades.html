@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Actividades - MR CLUB</title>
+    <link rel="stylesheet" href="../assets/CSS/estilos.css">
+</head>
+<body>
+    <div class="Contenedor-Formulario">
+        <nav class="nav-pestanas">
+            <a href="dashboard.html" class="pestana volver">⬅ Panel</a>
+            <a href="asociados.html" class="pestana">Asociados</a>
+            <a href="actividades.html" class="pestana activa">Actividades</a>
+            <a href="prestamos.html" class="pestana">Préstamos</a>
+            <a href="pagos.html" class="pestana">Pagos</a>
+        </nav>
+
+        <h2>Registro de Actividades</h2>
+        <form id="formActividades" action="" method="POST">
+            
+            <div class="grupo-input">
+                <label for="nombreActividad">Nombre de la Actividad:</label>
+                <input id="nombreActividad" type="text" required placeholder="Ej. Torneo de Fútbol Relámpago">
+            </div>
+
+            <div class="grupo-input">
+                <label for="descripcion">Descripción:</label>
+                <input id="descripcion" type="text" required placeholder="Breve detalle de la actividad">
+            </div>
+
+            <div class="grupo-input">
+                <label for="fecha">Fecha:</label>
+                <input id="fecha" type="date" required>
+            </div>
+
+            <div class="grupo-input">
+                <label for="responsable">Responsable:</label>
+                <input id="responsable" type="text" required placeholder="Nombre del encargado">
+            </div>
+
+            <div class="grupo.botones">
+                <button type="submit">Guardar</button>
+                <button type="reset">Limpiar</button>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>

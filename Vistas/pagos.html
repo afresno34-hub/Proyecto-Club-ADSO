@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Pago - MR CLUB</title>
+    <link rel="stylesheet" href="../assets/CSS/estilos.css">
+</head>
+<body>
+    <div class="Contenedor-Formulario">
+        <nav class="nav-pestanas">
+            <a href="dashboard.html" class="pestana volver">⬅ Panel</a>
+            <a href="asociados.html" class="pestana">Asociados</a>
+            <a href="actividades.html" class="pestana">Actividades</a>
+            <a href="prestamos.html" class="pestana">Préstamos</a>
+            <a href="pagos.html" class="pestana activa">Pagos</a>
+        </nav>
+
+        <h2>Registro de Pago</h2>
+        <form id="formPago" action="" method="POST">
+            
+            <div class="grupo-input">
+                <label for="asociadoPago">Asociado:</label>
+                <select id="asociadoPago" required>
+                    <option value="">Seleccione un asociado...</option>
+                    <option value="1">Juan Pérez</option>
+                    <option value="2">María Gómez</option>
+                </select>
+            </div>
+
+            <div class="grupo-input">
+                <label for="monto">Monto:</label>
+                <input id="monto" type="number" required placeholder="Ej. 50000">
+            </div>
+
+            <div class="grupo-input">
+                <label for="metodoPago">Método de Pago:</label>
+                <select id="metodoPago" required>
+                    <option value="">Seleccione método...</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                </select>
+            </div>
+
+            <div class="grupo-input">
+                <label for="fechaPago">Fecha de Pago:</label>
+                <input id="fechaPago" type="date" required>
+            </div>
+
+            <div class="grupo.botones">
+                <button type="submit">Registrar Pago</button>
+                <button type="reset">Limpiar</button>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>

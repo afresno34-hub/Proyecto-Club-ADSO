@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Préstamos - MR CLUB</title>
+    <link rel="stylesheet" href="../assets/CSS/estilos.css">
+</head>
+<body>
+    <div class="Contenedor-Formulario">
+        <nav class="nav-pestanas">
+            <a href="dashboard.html" class="pestana volver">⬅ Panel</a>
+            <a href="asociados.html" class="pestana">Asociados</a>
+            <a href="actividades.html" class="pestana">Actividades</a>
+            <a href="prestamos.html" class="pestana activa">Préstamos</a>
+            <a href="pagos.html" class="pestana">Pagos</a>
+        </nav>
+
+        <h2>Registro de Préstamos</h2>
+        <form id="formPrestamos" action="" method="POST">
+            
+            <div class="grupo-input">
+                <label for="asociadoPrestamo">Asociado Solicitante:</label>
+                <select id="asociadoPrestamo" required>
+                    <option value="">Seleccione un asociado...</option>
+                    <option value="1">Juan Pérez</option>
+                    <option value="2">María Gómez</option>
+                </select>
+            </div>
+
+            <div class="grupo-input">
+                <label for="montoPrestamo">Monto del Préstamo:</label>
+                <input id="montoPrestamo" type="number" required placeholder="Ej. 200000">
+            </div>
+
+            <div class="grupo-input">
+                <label for="interes">Tasa de Interés (%):</label>
+                <input id="interes" type="text" required placeholder="Ej. 2%">
+            </div>
+
+            <div class="grupo-input">
+                <label for="plazo">Plazo (Meses):</label>
+                <input id="plazo" type="number" required placeholder="Ej. 6">
+            </div>
+
+            <div class="grupo.botones">
+                <button type="submit">Generar Préstamo</button>
+                <button type="reset">Limpiar</button>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>

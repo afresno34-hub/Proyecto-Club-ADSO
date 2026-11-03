@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Asociados - MR CLUB</title>
+    <link rel="stylesheet" href="../assets/CSS/estilos.css">
+</head>
+<body>
+    <div class="Contenedor-Formulario">
+        <nav class="nav-pestanas">
+            <a href="dashboard.html" class="pestana volver">⬅ Panel</a>
+            <a href="asociados.html" class="pestana activa">Asociados</a>
+            <a href="actividades.html" class="pestana">Actividades</a>
+            <a href="prestamos.html" class="pestana">Préstamos</a>
+            <a href="pagos.html" class="pestana">Pagos</a>
+        </nav>
+
+        <h2>Registro de Asociados</h2>
+        <form id="formAsociados" action="" method="POST">
+            
+            <div class="grupo-input">
+                <label for="nombreCompleto">Nombre Completo:</label>
+                <input id="nombreCompleto" type="text" required placeholder="Ingrese nombre y apellido">
+            </div>
+
+            <div class="grupo-input">
+                <label for="identificacion">Número de Identificación:</label>
+                <input id="identificacion" type="text" required placeholder="Cédula o documento">
+            </div>
+
+            <div class="grupo-input">
+                <label for="telefono">Teléfono:</label>
+                <input id="telefono" type="tel" required placeholder="Número de contacto">
+            </div>
+
+            <div class="grupo-input">
+                <label for="correo">Correo Electrónico:</label>
+                <input id="correo" type="email" required placeholder="correo@ejemplo.com">
+            </div>
+
+            <div class="grupo.botones">
+                <button type="submit">Guardar Asociado</button>
+                <button type="reset">Limpiar</button>
+            </div>
+
+        </form>
+    </div>
+</body>
+</html>
