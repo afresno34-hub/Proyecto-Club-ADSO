@@ -1,6 +1,6 @@
 const usuarios = [
     { usuario: 'admin@gmail.com', contraseña: '123456', rol: 'admin', nombre: 'Admin MR' },
-    { usuario: 'Fresno@gmail.com', contraseña: '123456', rol: 'asociado', nombre: 'Juan Pérez' }
+    { usuario: 'Fresno@gmail.com', contraseña: '123456', rol: 'asociado', nombre: 'Adrian Fresno' }
 ];
 
 document.getElementById('formLogin').addEventListener('submit', function(event) {
