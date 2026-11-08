@@ -5,7 +5,7 @@
 }
 
 body{
-    background-color: blueviolet;
+    background-color: rgb(62, 14, 107);
     display: flex;
     justify-content: center; /*Horizontal*/
     align-items: center;
@@ -13,7 +13,7 @@ body{
 }
 
 h2{
-    color: rgb(235, 235, 6);
+    color: rgb(61, 223, 12);
     margin-bottom: 20px;
     font-size: 24px;
     text-align: center;
