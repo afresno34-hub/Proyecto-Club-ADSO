@@ -1,0 +1,81 @@
+<html lang=" es">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+    <meta charset="UTF-8">
+    <title>CLUB ADSO</title>
+    <link rel = "Stylesheet" href="../assets/css/estilos.css">
+</head>
+
+<body>
+    <div class = "contenedor-formulario">
+        <h2> Registro de Asociados Acerias </h2>
+        <form id="formRegistro" action = "../modelo/guardarAsociado.php" method = "POST">
+            <div class=" grupo-input">
+               <label>Documento</label> 
+               <input Id=" documento" name="documento" type = "number" placeholder="ej: 1012345678">
+            </div >
+            <div class=" grupo-input">
+                <label> Nombre</label>
+                <input Id = "nombre" name="nombres" type="text" placeholder="ej : juana">
+            </div>
+             <div class=" grupo-input">
+                <label> Apellido</label>
+                <input Id = "Apellido" name="apellidos" type="text" placeholder="ej : Gonzalez">
+            </div>
+             <div class=" grupo-input">
+                <label> Telefono</label>
+                <input Id = "telefono" name="telefono"  type="number" placeholder="ej : 3001234567">
+            </div>
+             <div class=" grupo-input">
+                <label> Email</label>
+                <input Id = "email" name="email" type="email" placeholder="ej : juana@gmail.com">
+            </div>
+               <div class=" grupo-input">
+                <label> Fecha de nacimiento </label>
+                <input Id = "Fecha de nacimiento" name="fechaNacimiento" type="date" placeholder="ej :12/11/89">
+            </div>
+             <div class=" grupo-input">
+                <label>Direccion </label>
+                <input Id = "Direccion" name="direccionResidencia" type="text" placeholder="ej :Cra 6 #15A-15">
+            </div>
+             <div class=" grupo-input">
+                <label>Ciudad </label>
+                <select id = "ciudad " name="ciudad" required>
+                    <option value="Sogamoso"> Sogamoso </option>
+                      <option value="Duitama"> Duitama </option>
+                        <option value="Tunja"> Tunja </option>
+                          <option value="Bogota"> Bogota </option>
+
+                </select>
+                
+            </div>
+             <div class=" grupo-input">
+                 <label>Genero:</label>
+                 <label>
+                <input type = "radio" id = "Femenino" name = "genero" value = "Femenino">
+                <span> Femenino</span>
+                 </label>
+                 <label>
+                <input type = "radio" id = "Masculino " name = "genero" value = "Masculino">
+                <span> Masculino</span>
+                </label>
+                <label>
+                <input type = "radio" id = "Otro" name = "genero"  value="Otro">
+                <span> Otro</span>
+                </label>
+            </div>
+
+            
+             <div class=" grupo-botones">
+                <button type = "submit" > Guardar </button>
+                <button type = "reset "> Limpiar Formulario</button>
+             </div>
+             <p id = "mensajeRegistro" role = "status" aria-live="polite"></p>
+        </form>
+    </div>
+    <script src="../controllers/Asociado.js"></script>
+</body>
+
+</html> 
