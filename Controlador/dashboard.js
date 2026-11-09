@@ -7,17 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const nombre = localStorage.getItem('nombre') || 'Usuario';
-    const rol = localStorage.getItem('rol');
+    const rol = localStorage.getItem('rol') || 'Usuario';
 
-    const nombreEl = document.getElementById('nombreUsuario') || document.getElementById('nombreusuario');
+    const nombreEl = document.getElementById('nombreUsuario') || document.getElementById('NombreUsuario') || document.getElementById('nombreusuario');
     if (nombreEl) {
         nombreEl.textContent = nombre;
     }
 
-    const adminTarjetas = document.getElementById('tarjetasAdministrador');
-    const asociadoTarjetas = document.getElementById('tarjetasAsociado') || document.getElementById('tarjetasUsuario');
+    const adminTarjetas = document.getElementById('tarjetasAdministrador') || document.getElementById('tarjetasadministrador') || document.getElementById('TarjetasAdministrador');
+    const asociadoTarjetas = document.getElementById('tarjetasAsociado') || document.getElementById('TarjetaAsociados') || document.getElementById('tarjetasUsuario');
 
-    if (rol === 'admin') {
+    const esAdmin = (rol.toLowerCase() === 'admin' || rol.toLowerCase() === 'administrador');
+
+    if (esAdmin) {
         if (adminTarjetas) adminTarjetas.classList.remove('d-none');
         if (asociadoTarjetas) asociadoTarjetas.classList.add('d-none');
     } else {

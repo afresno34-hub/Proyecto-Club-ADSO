@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Asociados - MR CLUB</title>
     <link rel="stylesheet" href="../assets/CSS/estilos.css">
 </head>
@@ -16,26 +17,67 @@
         </nav>
 
         <h2>Registro de Asociados</h2>
-        <form id="formAsociados" action="" method="POST">
+        <form id="formRegistro" action="../Modelo/guardarAsociado.php" method="POST">
             
             <div class="grupo-input">
-                <label for="nombreCompleto">Nombre Completo:</label>
-                <input id="nombreCompleto" type="text" required placeholder="Ingrese nombre y apellido">
+                <label for="documento">Número de Identificación:</label>
+                <input id="documento" name="documento" type="number" required placeholder="Cédula o documento">
             </div>
 
             <div class="grupo-input">
-                <label for="identificacion">Número de Identificación:</label>
-                <input id="identificacion" type="text" required placeholder="Cédula o documento">
+                <label for="nombres">Nombres:</label>
+                <input id="nombres" name="nombres" type="text" required placeholder="Ingrese nombres">
+            </div>
+
+            <div class="grupo-input">
+                <label for="apellidos">Apellidos:</label>
+                <input id="apellidos" name="apellidos" type="text" required placeholder="Ingrese apellidos">
             </div>
 
             <div class="grupo-input">
                 <label for="telefono">Teléfono:</label>
-                <input id="telefono" type="tel" required placeholder="Número de contacto">
+                <input id="telefono" name="telefono" type="tel" required placeholder="Número de contacto">
             </div>
 
             <div class="grupo-input">
-                <label for="correo">Correo Electrónico:</label>
-                <input id="correo" type="email" required placeholder="correo@ejemplo.com">
+                <label for="email">Correo Electrónico:</label>
+                <input id="email" name="email" type="email" required placeholder="correo@ejemplo.com">
+            </div>
+
+            <div class="grupo-input">
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input id="fechaNacimiento" name="fechaNacimiento" type="date" required>
+            </div>
+
+            <div class="grupo-input">
+                <label for="direccionResidencia">Dirección de Residencia:</label>
+                <input id="direccionResidencia" name="direccionResidencia" type="text" required placeholder="Ej: Cra 6 #15A-15">
+            </div>
+
+            <div class="grupo-input">
+                <label for="ciudad">Ciudad:</label>
+                <select id="ciudad" name="ciudad" required>
+                    <option value="">Seleccione una ciudad...</option>
+                    <option value="Sogamoso">Sogamoso</option>
+                    <option value="Duitama">Duitama</option>
+                    <option value="Tunja">Tunja</option>
+                    <option value="Bogota">Bogotá</option>
+                </select>
+            </div>
+
+            <div class="grupo-input">
+                <label>Género:</label>
+                <div style="display: flex; gap: 15px; margin-top: 5px;">
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" id="Femenino" name="genero" value="Femenino" required> Femenino
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" id="Masculino" name="genero" value="Masculino"> Masculino
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="radio" id="Otro" name="genero" value="Otro"> Otro
+                    </label>
+                </div>
             </div>
 
             <div class="grupo.botones">
@@ -43,7 +85,11 @@
                 <button type="reset">Limpiar</button>
             </div>
 
+            <p id="mensajeRegistro" role="status" aria-live="polite" style="text-align: center; font-weight: bold; margin-top: 15px;"></p>
+
         </form>
     </div>
+
+    <script src="../Controlador/Asociado.js"></script>
 </body>
 </html>

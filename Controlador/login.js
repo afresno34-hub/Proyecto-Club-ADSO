@@ -1,24 +1,30 @@
 const usuarios = [
-    { usuario: 'admin@gmail.com', contraseña: '123456', rol: 'admin', nombre: 'Admin MR' },
-    { usuario: 'Fresno@gmail.com', contraseña: '123456', rol: 'asociado', nombre: 'Adrian Fresno' }
+    { usuario: 'admin@gmail.com', clave: '123456', rol: 'Administrador', nombre: 'Admin MR' },
+    { usuario: 'Fresno@gmail.com', clave: '123456', rol: 'Usuario', nombre: 'Juan Pérez' },
+    { usuario: 'Doris@gmail.com', clave: '1234', rol: 'Administrador', nombre: 'Doris Administradora' },
+    { usuario: 'Rubi@gmail.com', clave: '5678', rol: 'Usuario', nombre: 'Rubi Asociada' }
 ];
 
-document.getElementById('formLogin').addEventListener('submit', function(event) {
-    event.preventDefault();
+const formLogin = document.getElementById('formLogin') || document.getElementById('Login');
 
-    const usuarioInput = document.getElementById('usuario').value;
-    const contraseñaInput = document.getElementById('contraseña').value;
+if (formLogin) {
+    formLogin.addEventListener('submit', function (event) {
+        event.preventDefault();
 
-    const usuarioEncontrado = usuarios.find(
-        u => u.usuario === usuarioInput && u.contraseña === contraseñaInput
-    );
+        const usuarioInput = (document.getElementById('usuario') || document.getElementById('Usuario')).value.trim();
+        const claveInput = (document.getElementById('contraseña') || document.getElementById('Contraseña')).value;
 
-    if (usuarioEncontrado) {
-        localStorage.setItem('logueado','true');
-        localStorage.setItem('rol', usuarioEncontrado.rol);
-        localStorage.setItem('nombre', usuarioEncontrado.nombre);
-        window.location.href = 'dashboard.html';
-    } else {
-        alert('Usuario o contraseña incorrectos');
-    }
-});
+        const usuarioEncontrado = usuarios.find(
+            u => u.usuario.toLowerCase() === usuarioInput.toLowerCase() && (u.clave === claveInput || u.contraseña === claveInput)
+        );
+
+        if (usuarioEncontrado) {
+            localStorage.setItem('logueado', 'true');
+            localStorage.setItem('rol', usuarioEncontrado.rol);
+            localStorage.setItem('nombre', usuarioEncontrado.nombre);
+            window.location.href = 'dashboard.html';
+        } else {
+            alert('Usuario o contraseña incorrectos');
+        }
+    });
+}

@@ -1,39 +1,53 @@
-const formulario = document.getElementById("forRegistro");
+const formulario = document.getElementById("formRegistro") || document.getElementById("formAsociados");
 
-formulario.addEventListener("submit", async function(event) {
-    // Evitar recargar la pagina al enviar el formulario 
-    event.preventDefault();
+if (formulario) {
+    formulario.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    const botonguardar = formulario.querySelector('button[type="submit"]');
+        const botonGuardar = formulario.querySelector('button[type="submit"]');
+        const Asociado = Object.fromEntries(new FormData(formulario).entries());
 
-    //lee los campos del formulario y los guarda en un objeto
-    const asociado = Object.fromEntries(new FormData(formulario).entries());
+        if (botonGuardar) botonGuardar.disabled = true;
 
-    botonguardar.disabled = true; //Desabilitar el boton mienstras se procesa la solicitud
-    
-    try{
-      const respuesta = await fetcf(formulario.action, {
-        method : 'POST', 
-        headers:{'Content-Type': 'application/json'}, 
-        body: JSON.stringify(asociado)
+        const mensajeEl = document.getElementById("mensajeRegistro");
+        if (mensajeEl) {
+            mensajeEl.textContent = "Guardando...";
+            mensajeEl.style.color = "#333";
+        }
+
+        try {
+            const urlDestino = formulario.action || '../Modelo/guardarAsociado.php';
+            const respuesta = await fetch(urlDestino, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Asociado)
+            });
+
+            let resultado;
+            try {
+                resultado = await respuesta.json();
+            } catch {
+                throw new Error(`El servidor respondió con HTTP ${respuesta.status}, pero no devolvió JSON.`);
+            }
+
+            if (mensajeEl) {
+                mensajeEl.textContent = resultado.message;
+                mensajeEl.style.color = resultado.success ? "green" : "red";
+                mensajeEl.style.fontWeight = "bold";
+                mensajeEl.style.marginTop = "10px";
+            }
+
+            if (respuesta.ok && resultado.success) {
+                formulario.reset();
+            }
+        } catch (error) {
+            console.error("Error al enviar el formulario: ", error);
+            if (mensajeEl) {
+                mensajeEl.textContent = error.message || "Ocurrió un error al enviar el formulario.";
+                mensajeEl.style.color = "red";
+            }
+        } finally {
+            if (botonGuardar) botonGuardar.disabled = false;
+        }
     });
-    
-      // pasar las respuestas Json a un objeto de JavaScript
-      const resultado = await respuesta.json();
-      document.getElementById("mensajeRegistro").textContent = "Guardando...";
-
-      document.getElementById("mensajeRegistro").dataset.tipo="";
-
-      document .getElementById("mensajeRegistro").textContent = resultado.mensaje;
-    
-      if(respuesta.ok && resultado.success){
-        formulario.reset(); //Limpiar el formulario si la respuesta es exitosa
-      }
-    } catch (error) {
-        console.error("Error al enviar el formulario:", error);
-        document.getElementById("mensajeRegistro").textContent =
-         "Ocurrio un error al enviar el formulario. Por favor, intente nuevamente.";         
-    } finally {
-        botonguardar.disabled = false; //Habilitar el boton despues de procesar la solicitud
-    }
-});
+}
