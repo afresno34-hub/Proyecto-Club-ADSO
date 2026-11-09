@@ -21,7 +21,7 @@ try {
         }
     }
 
-    $campos = ["documento", "nombres", "apellidos", "direccionResidencia", "ciudad", "telefono", "email", "genero", "fechaNacimiento"];
+    $campos = ["documento", "nombres", "apellidos", "direccionResidencia", "ciudad", "telefono", "email", "genero", "fechaNacimiento", "password"];
     foreach ($campos as $campo) {
         if (!isset($datos[$campo]) || trim((string)$datos[$campo]) === '') {
             http_response_code(400);

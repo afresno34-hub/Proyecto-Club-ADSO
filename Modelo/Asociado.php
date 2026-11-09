@@ -11,7 +11,9 @@ class Asociado {
     private $email;
     private $genero;
     private $fechaNacimiento;
+    private $Contraseña;
     private $conexion;
+    
 
     public function __construct($datos) {
         $this->documento = $datos['documento'] ?? '';
@@ -23,7 +25,8 @@ class Asociado {
         $this->email = $datos['email'] ?? '';
         $this->genero = $datos['genero'] ?? '';
         $this->fechaNacimiento = $datos['fechaNacimiento'] ?? '';
-
+        $this->Contraseña = Contraseña_hash($datos['password'] ?? '', PASSWORD_DEFAULT);
+        
         $conexion = new Conexion();
         $this->conexion = $conexion->conectar();
     }
@@ -38,17 +41,18 @@ class Asociado {
             ":telefono" => $this->telefono,
             ":email" => $this->email,
             ":genero" => $this->genero,
-            ":fechaNacimiento" => $this->fechaNacimiento
+            ":fechaNacimiento" => $this->fechaNacimiento,
+            ":Contraseña_hash" => $this->Contraseña
         ];
 
         try {
-            $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento)";
+            $sql = "INSERT INTO asociados (documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento, Contraseña_hash) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento, :Contraseña_hash)";    
             $consulta = $this->conexion->prepare($sql);
             return $consulta->execute($params);
-        } catch (PDOException $e) {
+        } catch (PDOException $e) {             
             // Compatibilidad por si la columna en MySQL fue creada con tilde (`direcciónResidencia`)
-            if (strpos($e->getMessage(), 'direccionResidencia') !== false) {
-                $sql = "INSERT INTO asociados (documento, nombres, apellidos, `direcciónResidencia`, ciudad, telefono, email, genero, fechaNacimiento) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento)";
+            if (strpos($e->getMessage(), 'direccionResidencia') !== false) {    
+                $sql = "INSERT INTO asociados (documento, nombres, apellidos, `direcciónResidencia`, ciudad, telefono, email, genero, fechaNacimiento, Contraseña_hash) VALUES (:documento, :nombres, :apellidos, :direccionResidencia, :ciudad, :telefono, :email, :genero, :fechaNacimiento, :Contraseña_hash)";
                 $consulta = $this->conexion->prepare($sql);
                 return $consulta->execute($params);
             }

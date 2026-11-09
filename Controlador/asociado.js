@@ -7,6 +7,13 @@ if (formulario) {
         const botonGuardar = formulario.querySelector('button[type="submit"]');
         const Asociado = Object.fromEntries(new FormData(formulario).entries());
 
+        if(Asociado.password !== Asociado.confirmPassword) {
+            document.getElementById("mensajeRegistro").textContent = 
+            "Las contraseñas no coinciden.";
+        }
+
+        delete Asociado.confirmPassword;
+
         if (botonGuardar) botonGuardar.disabled = true;
 
         const mensajeEl = document.getElementById("mensajeRegistro");
