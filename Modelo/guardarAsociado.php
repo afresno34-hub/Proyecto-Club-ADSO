@@ -21,7 +21,32 @@ try {
         }
     }
 
-    $campos = ["documento", "nombres", "apellidos", "direccionResidencia", "ciudad", "telefono", "email", "genero", "fechaNacimiento", "password"];
+    // Normalizar contraseña (acepta 'contrasena', 'contraseña', 'clave', 'password')
+    if (!isset($datos['contraseña']) || trim((string)$datos['contraseña']) === '') {
+        if (isset($datos['contrasena']) && trim((string)$datos['contrasena']) !== '') {
+            $datos['contraseña'] = $datos['contrasena'];
+        } elseif (isset($datos['clave']) && trim((string)$datos['clave']) !== '') {
+            $datos['contraseña'] = $datos['clave'];
+        } elseif (isset($datos['password']) && trim((string)$datos['password']) !== '') {
+            $datos['contraseña'] = $datos['password'];
+        }
+    }
+
+    // Normalizar dirección de residencia
+    if (!isset($datos['direccionResidencia']) || trim((string)$datos['direccionResidencia']) === '') {
+        if (isset($datos['direcciónResidencia'])) {
+            $datos['direccionResidencia'] = $datos['direcciónResidencia'];
+        } elseif (isset($datos['direccion'])) {
+            $datos['direccionResidencia'] = $datos['direccion'];
+        } elseif (isset($datos['Direccion'])) {
+            $datos['direccionResidencia'] = $datos['Direccion'];
+        }
+    }
+
+    // Remover campos de confirmación que no van a la base de datos
+    unset($datos['confirmarContrasena'], $datos['confirmarContraseña'], $datos['confirmPassword']);
+
+    $campos = ["documento", "nombres", "apellidos", "direccionResidencia", "ciudad", "telefono", "email", "genero", "fechaNacimiento", "contraseña"];
     foreach ($campos as $campo) {
         if (!isset($datos[$campo]) || trim((string)$datos[$campo]) === '') {
             http_response_code(400);
