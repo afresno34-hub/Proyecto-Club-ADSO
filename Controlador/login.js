@@ -1,30 +1,73 @@
-const usuarios = [
-    { usuario: 'admin@gmail.com', clave: '123456', rol: 'Administrador', nombre: 'Admin MR' },
-    { usuario: 'Fresno@gmail.com', clave: '123456', rol: 'Usuario', nombre: 'Juan Pérez' },
-    { usuario: 'Doris@gmail.com', clave: '1234', rol: 'Administrador', nombre: 'Doris Administradora' },
-    { usuario: 'Rubi@gmail.com', clave: '5678', rol: 'Usuario', nombre: 'Rubi Asociada' }
-];
-
 const formLogin = document.getElementById('formLogin') || document.getElementById('Login');
 
 if (formLogin) {
-    formLogin.addEventListener('submit', function (event) {
-        event.preventDefault();
+    formLogin.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const boton = formLogin.querySelector('button[type="submit"]');
+        const mensaje = document.getElementById('mensajeLogin');
 
-        const usuarioInput = (document.getElementById('usuario') || document.getElementById('Usuario')).value.trim();
-        const claveInput = (document.getElementById('contraseña') || document.getElementById('Contraseña')).value;
+        if (boton) boton.disabled = true;
 
-        const usuarioEncontrado = usuarios.find(
-            u => u.usuario.toLowerCase() === usuarioInput.toLowerCase() && (u.clave === claveInput || u.contraseña === claveInput)
-        );
+        if (mensaje) {
+            mensaje.textContent = "Verificando credenciales...";
+            mensaje.style.color = "#333";
+            mensaje.style.fontWeight = "bold";
+        }
 
-        if (usuarioEncontrado) {
+        try {
+            const datosForm = Object.fromEntries(new FormData(formLogin));
+            const ruta = formLogin.action || '../Modelo/IniciarSesion.php';
+
+            const respuesta = await fetch(ruta, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(datosForm)
+            });
+
+            let resultado;
+            try {
+                resultado = await respuesta.json();
+            } catch {
+                throw new Error(`El servidor respondió con código HTTP ${respuesta.status}`);
+            }
+
+            if (!resultado.success) {
+                if (mensaje) {
+                    mensaje.textContent = resultado.error || resultado.message || "Usuario o contraseña incorrectos.";
+                    mensaje.style.color = "red";
+                    mensaje.style.fontWeight = "bold";
+                } else {
+                    alert(resultado.error || resultado.message || "Usuario o contraseña incorrectos.");
+                }
+                return;
+            }
+
+            // Guardar sesión en LocalStorage
             localStorage.setItem('logueado', 'true');
-            localStorage.setItem('rol', usuarioEncontrado.rol);
-            localStorage.setItem('nombre', usuarioEncontrado.nombre);
-            window.location.href = 'dashboard.html';
-        } else {
-            alert('Usuario o contraseña incorrectos');
+            localStorage.setItem('rol', resultado.rol || resultado.Rol || 'Asociado');
+            localStorage.setItem('nombre', resultado.nombre || 'Asociado');
+
+            if (mensaje) {
+                mensaje.textContent = "¡Inicio de sesión exitoso! Redirigiendo...";
+                mensaje.style.color = "green";
+                mensaje.style.fontWeight = "bold";
+            }
+
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 600);
+
+        } catch (error) {
+            console.error('Error al iniciar sesión:', error);
+            if (mensaje) {
+                mensaje.textContent = error.message || "Ocurrió un error al intentar iniciar sesión.";
+                mensaje.style.color = "red";
+                mensaje.style.fontWeight = "bold";
+            } else {
+                alert("Ocurrió un error al intentar iniciar sesión.");
+            }
+        } finally {
+            if (boton) boton.disabled = false;
         }
     });
 }

@@ -45,8 +45,13 @@
             </div>
 
             <div class="grupo-input">
-                <label for="contraseña">Contraseña:</label>
-                <input id="contraseña" name="contraseña" type="password" required placeholder="Cree su contraseña de acceso">
+                <label for="contrasena">Contraseña:</label>
+                <input id="contrasena" name="contrasena" type="password" minlength="8" required placeholder="Mínimo 8 caracteres">
+            </div>
+
+            <div class="grupo-input">
+                <label for="confirmarContrasena">Confirmar Contraseña:</label>
+                <input id="confirmarContrasena" name="confirmarContrasena" type="password" minlength="8" required placeholder="Repita la contraseña">
             </div>
 
             <div class="grupo-input">
@@ -95,6 +100,6 @@
         </form>
     </div>
 
-    <script src="../Controlador/Asociado.js"></script>
+    <script src="../Controlador/asociado.js"></script>
 </body>
 </html>

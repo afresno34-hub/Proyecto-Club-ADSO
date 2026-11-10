@@ -9,7 +9,7 @@
 <body>
     <div class="Contenedor-Formulario">
         <h2>Inicio de Sesión</h2>
-        <form id="formLogin" action="" method="POST">
+        <form id="formLogin" action="../Modelo/IniciarSesion.php" method="POST">
             <div class="grupo-input">
                 <label for="usuario">Usuario:</label>
                 <input id="usuario" name="usuario" type="text" required placeholder="Ingrese su usuario o correo">
@@ -28,6 +28,7 @@
             <div class="registro" style="text-align: center; margin-top: 18px;">
                 <p>¿No tienes una cuenta? <a href="asociados.html" style="font-weight: bold; color: #004d40;">Regístrate aquí</a></p>
             </div>
+            <p id="mensajeLogin" class="text-danger mt-3 mb-0"></p>
         </form>
     </div>
 

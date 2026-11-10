@@ -21,16 +21,29 @@ try {
         }
     }
 
-    // Normalizar contraseña (acepta 'contrasena', 'contraseña', 'clave', 'password')
-    if (!isset($datos['contraseña']) || trim((string)$datos['contraseña']) === '') {
-        if (isset($datos['contrasena']) && trim((string)$datos['contrasena']) !== '') {
-            $datos['contraseña'] = $datos['contrasena'];
-        } elseif (isset($datos['clave']) && trim((string)$datos['clave']) !== '') {
-            $datos['contraseña'] = $datos['clave'];
-        } elseif (isset($datos['password']) && trim((string)$datos['password']) !== '') {
-            $datos['contraseña'] = $datos['password'];
-        }
+    // Normalizar contraseña sin ñ (acepta 'contrasena', 'contraseña', 'clave', 'password')
+    $pass = $datos['contrasena'] ?? ($datos['contraseña'] ?? ($datos['clave'] ?? ($datos['password'] ?? '')));
+    $confirmPass = $datos['confirmarContrasena'] ?? ($datos['confirmarContraseña'] ?? ($datos['confirmPassword'] ?? null));
+
+    if (trim((string)$pass) === '') {
+        http_response_code(400);
+        throw new Exception("Falta el campo: contrasena");
     }
+
+    // Validar que la contraseña tenga mínimo 8 caracteres
+    if (strlen($pass) < 8) {
+        http_response_code(400);
+        throw new Exception("La contraseña debe tener mínimo 8 caracteres");
+    }
+
+    // Comparar contraseñas si se envió campo de confirmación
+    if ($confirmPass !== null && trim((string)$confirmPass) !== '' && $pass !== $confirmPass) {
+        http_response_code(400);
+        throw new Exception("Las contraseñas no coinciden");
+    }
+
+    $datos['contrasena'] = $pass;
+    $datos['contraseña'] = $pass;
 
     // Normalizar dirección de residencia
     if (!isset($datos['direccionResidencia']) || trim((string)$datos['direccionResidencia']) === '') {
@@ -46,7 +59,7 @@ try {
     // Remover campos de confirmación que no van a la base de datos
     unset($datos['confirmarContrasena'], $datos['confirmarContraseña'], $datos['confirmPassword']);
 
-    $campos = ["documento", "nombres", "apellidos", "direccionResidencia", "ciudad", "telefono", "email", "genero", "fechaNacimiento", "contraseña"];
+    $campos = ["documento", "nombres", "apellidos", "direccionResidencia", "ciudad", "telefono", "email", "genero", "fechaNacimiento", "contrasena"];
     foreach ($campos as $campo) {
         if (!isset($datos[$campo]) || trim((string)$datos[$campo]) === '') {
             http_response_code(400);

@@ -8,10 +8,22 @@ if (formulario) {
         const Asociado = Object.fromEntries(new FormData(formulario).entries());
         const mensajeEl = document.getElementById("mensajeRegistro");
 
-        // Validar coincidencia de contraseñas si existe campo de confirmación
-        const pass = Asociado.contraseña || Asociado.contrasena || Asociado.password || Asociado.clave;
-        const confirmPass = Asociado.confirmarContraseña || Asociado.confirmarContrasena || Asociado.confirmPassword;
+        const pass = Asociado.contrasena || Asociado.contraseña || Asociado.password || Asociado.clave || "";
+        const confirmPass = Asociado.confirmarContrasena || Asociado.confirmarContraseña || Asociado.confirmPassword;
 
+        // 1. Validar longitud mínima de 8 caracteres (sin permitir subir el formulario si es menor)
+        if (!pass || pass.length < 8) {
+            if (mensajeEl) {
+                mensajeEl.textContent = "La contraseña debe tener mínimo 8 caracteres.";
+                mensajeEl.style.color = "red";
+                mensajeEl.style.fontWeight = "bold";
+            } else {
+                alert("La contraseña debe tener mínimo 8 caracteres.");
+            }
+            return; // Detiene el envío
+        }
+
+        // 2. Comparar contraseñas si existe campo de confirmación
         if (confirmPass !== undefined && confirmPass !== "" && pass !== confirmPass) {
             if (mensajeEl) {
                 mensajeEl.textContent = "Las contraseñas no coinciden.";
@@ -20,14 +32,15 @@ if (formulario) {
             } else {
                 alert("Las contraseñas no coinciden.");
             }
-            return;
+            return; // Detiene el envío
         }
 
-        // Limpiar confirmación y asegurar campo contraseña
+        // Limpiar campos de confirmación y asegurar contrasena sin ñ
         delete Asociado.confirmarContraseña;
         delete Asociado.confirmarContrasena;
         delete Asociado.confirmPassword;
-        Asociado.contraseña = pass;
+        delete Asociado.contraseña;
+        Asociado.contrasena = pass;
 
         if (botonGuardar) botonGuardar.disabled = true;
 

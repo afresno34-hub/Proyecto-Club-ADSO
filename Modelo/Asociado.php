@@ -25,7 +25,13 @@ class Asociado {
         $this->email = $datos['email'] ?? '';
         $this->genero = $datos['genero'] ?? 'Otro';
         $this->fechaNacimiento = $datos['fechaNacimiento'] ?? '';
-        $this->contraseña = $datos['contraseña'] ?? ($datos['clave'] ?? ($datos['password'] ?? ''));
+        $clavePlana = $datos['contrasena'] ?? ($datos['contraseña'] ?? ($datos['clave'] ?? ($datos['password'] ?? '')));
+        // Hashear la contraseña con el algoritmo seguro de PHP (bcrypt / PASSWORD_DEFAULT)
+        if (strpos($clavePlana, '$2y$') === 0 || strpos($clavePlana, '$2a$') === 0) {
+            $this->contraseña = $clavePlana;
+        } else {
+            $this->contraseña = password_hash($clavePlana, PASSWORD_DEFAULT);
+        }
         $this->rol = $datos['rol'] ?? ($datos['Rol'] ?? 'Asociado');
 
         $conexion = new Conexion();
