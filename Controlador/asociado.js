@@ -8,11 +8,8 @@ if (formulario) {
         const Asociado = Object.fromEntries(new FormData(formulario).entries());
         const mensajeEl = document.getElementById("mensajeRegistro");
 
-        const pass = Asociado.contrasena || Asociado.contraseña || Asociado.password || Asociado.clave || "";
-        const confirmPass = Asociado.confirmarContrasena || Asociado.confirmarContraseña || Asociado.confirmPassword;
-
-        // 1. Validar longitud mínima de 8 caracteres (sin permitir subir el formulario si es menor)
-        if (!pass || pass.length < 8) {
+        // Validar que la contraseña sea de mínimo 8 caracteres
+        if (!Asociado.contrasena || Asociado.contrasena.length < 8) {
             if (mensajeEl) {
                 mensajeEl.textContent = "La contraseña debe tener mínimo 8 caracteres.";
                 mensajeEl.style.color = "red";
@@ -20,11 +17,11 @@ if (formulario) {
             } else {
                 alert("La contraseña debe tener mínimo 8 caracteres.");
             }
-            return; // Detiene el envío
+            return;
         }
 
-        // 2. Comparar contraseñas si existe campo de confirmación
-        if (confirmPass !== undefined && confirmPass !== "" && pass !== confirmPass) {
+        // Comparar contraseñas
+        if (Asociado.contrasena !== Asociado.confirmarContrasena) {
             if (mensajeEl) {
                 mensajeEl.textContent = "Las contraseñas no coinciden.";
                 mensajeEl.style.color = "red";
@@ -32,15 +29,10 @@ if (formulario) {
             } else {
                 alert("Las contraseñas no coinciden.");
             }
-            return; // Detiene el envío
+            return;
         }
 
-        // Limpiar campos de confirmación y asegurar contrasena sin ñ
-        delete Asociado.confirmarContraseña;
         delete Asociado.confirmarContrasena;
-        delete Asociado.confirmPassword;
-        delete Asociado.contraseña;
-        Asociado.contrasena = pass;
 
         if (botonGuardar) botonGuardar.disabled = true;
 
