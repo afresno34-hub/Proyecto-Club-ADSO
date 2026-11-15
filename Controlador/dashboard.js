@@ -29,17 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function cerrarSesion() {
-
     try {
-        const respuesta = await fetch("../Modelo/cerrarSesion.php", { method: "POST" });
-
-        if (!respuesta.ok) {
-            throw new Error("Error al cerrar sesión");
-        }
+        await fetch("../Modelo/cerrarSesion.php", { method: "POST" });
+    } catch (error) {
+        console.error("Error al notificar cierre de sesión al servidor:", error);
+    } finally {
         localStorage.clear();
         window.location.href = 'login.html';
-
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
     }
 }

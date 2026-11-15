@@ -60,11 +60,14 @@ try {
 } catch (PDOException $e) {
     if ($e->getCode() == 23000) {
         http_response_code(409);
-        echo json_encode(["success" => false, "message" => "El documento ya existe en la base de datos"]);
+        echo json_encode(["success" => false, "message" => "El documento o correo electrónico ya se encuentra registrado"]);
     } else {
         http_response_code(500);
         echo json_encode(["success" => false, "message" => "Error de base de datos: " . $e->getMessage()]);
     }
 } catch (Exception $e) {
+    if (http_response_code() === 200) {
+        http_response_code(400);
+    }
     echo json_encode(["success" => false, "message" => $e->getMessage()]);
 }
