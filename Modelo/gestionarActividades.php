@@ -4,14 +4,41 @@ session_start();
 header("content-type: application/json; charset=UTF-8");
 
 function leerdatos()
- {
-      
+ {   
     $datos = json_encode(file_get_contents("php://input"), true);
     if(json_last_error() !== JSON_ERROR_NONE){
         http_response_code(400);
         throw new Exception("Error al decodificar JSON: " - json_last_error_msg());
     }
     return $datos;
+}
+
+function validarActividad($datos)
+{
+        $nombre = $datos['nombreActividad'] ?? null;
+        $fecha = $datos['fecha'] ?? null;
+        $responsable = $datos['responsable'] ?? null;
+        if(!is_string($nombre) || trim($nombre) ==="" || strlen($nombre) > 100 || !is_string($responsable) || trim($responsable) ==="" || strlen($responsable) > 50) {        
+           http_response_code(400);
+           throw new exception(
+              "Ingrese un nombre y municipio valido"
+           );
+        }  
+    return[
+        "nombreActividad" => trim($nombre),
+        "fecha" => $fecha,
+        "responsable" => trim($responsable) 
+    ];
+}
+
+function validarId($id){
+     $idActividad = filter_var($id, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1]]);
+     if($idActividad === false){
+        http_response_code(400);
+        throw new Exception("El identificador de la actividad no es valido");
+    }
+    return $idActividad;
+     
 }
 
 try{
@@ -35,6 +62,7 @@ try{
     require_once __DIR__ . "/Actividad.php";
     $actividad = new Activdad();
 
+
     switch($metodo){
         case "GET":
             $resultado= [
@@ -45,13 +73,43 @@ try{
             http_response_code(200);
             break;
         case "POST":
-            // $datos=validarActividad(leerDatos());
+            $datos=validarActividad(leerDatos());
             $actividad->($datos);
             $resultado = [
                 "success" => true,
                 "message" => "Actividad creada Exitosamente"
             ]
             http_response_code(201);
+            break;
+        case "PUT": 
+            $datos=leerdatos();
+            $datos["idActividad"] = validarId($datos["idActividad"] ?? null);
+            $datos = array_merge($datos, validarActividad($datos));
+
+            if(!$actividad -> editar($datos)){
+                http_response_code(404);
+                throw new Exception("No se encontro la actividad");
+            }
+            $resultado = [
+                "success" => true,
+                "mensaje" => "Actividad actualizada correctamente"
+            ];
+            http_response_code(200);
+            break;
+        case "DELETE": 
+            $datos = leerdatos();
+            $idActividad = validarId($datos["idActividad"] ?? null);
+
+            if(!actividad -> eliminar($idActividad)){
+                http_response_code(404);
+                throw new Exception("no se encontro la actividad");
+            }                          
+
+            $resultado = [
+                "success" => true,
+                "mensaje" => "Actividad eliminada correctamente"
+            ];
+            http_response_code(200);
             break;
     }
     echo json_encode($resultado);
