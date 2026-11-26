@@ -29,57 +29,67 @@ class Pago {
     }
 
     public function listarPrestamosParaPago($idAsociado) {
-        [$inicioMes, $inicioMesSiguiente] = $this->rangoMesActual();
         $consulta = $this->conexion->prepare(
             "SELECT idPrestamo, valorPrestamo, tasaInteres, numeroCuotas
              FROM prestamos
-             WHERE idAsociado = :idAsociado
+             WHERE idAsociado = :idAsociado AND estado = 'Aprobado'
              ORDER BY fechaPrestamo DESC"
         );
         $consulta->execute([':idAsociado' => $idAsociado]);
         $prestamos = [];
 
         foreach ($consulta->fetchAll() as $prestamo) {
-            $resumen = $this->resumenCuotas(
-                $prestamo['idPrestamo'],
-                $inicioMes,
-                $inicioMesSiguiente
+            $consultaPagos = $this->conexion->prepare(
+                "SELECT COALESCE(SUM(valorCuota), 0) AS totalPagado, COUNT(*) AS cantidadPagos
+                 FROM pagos_cuotas
+                 WHERE idPrestamo = :idPrestamo"
             );
+            $consultaPagos->execute([':idPrestamo' => $prestamo['idPrestamo']]);
+            $resumen = $consultaPagos->fetch();
+
             $numeroCuotas = (int) $prestamo['numeroCuotas'];
             $cuotaMensual = $this->calcularCuotaMensual(
                 (float) $prestamo['valorPrestamo'],
                 (float) $prestamo['tasaInteres'],
                 $numeroCuotas
             );
-            $saldoPendiente = round(
-                $cuotaMensual * $numeroCuotas - (float) $resumen['totalPagado'],
-                2
-            );
+            $totalDeuda = round($cuotaMensual * $numeroCuotas, 2);
+            $totalPagado = round((float) $resumen['totalPagado'], 2);
+            $saldoPendiente = round($totalDeuda - $totalPagado, 2);
 
-            if ((int) $resumen['pagosMes'] > 0 ||
-                (int) $resumen['cantidadPagos'] >= $numeroCuotas ||
-                $saldoPendiente <= 0) {
+            // Si ya está totalmente cancelado, no se lista
+            if ($saldoPendiente <= 0) {
                 continue;
             }
 
+            $cuotaSugerida = round(min($cuotaMensual, $saldoPendiente), 2);
+
             $prestamos[] = [
                 'idPrestamo' => (int) $prestamo['idPrestamo'],
-                'valorCuota' => round(min($cuotaMensual, $saldoPendiente), 2)
+                'valorPrestamo' => (float) $prestamo['valorPrestamo'],
+                'tasaInteres' => (float) $prestamo['tasaInteres'],
+                'numeroCuotas' => $numeroCuotas,
+                'valorCuota' => $cuotaSugerida,
+                'cuotaSugerida' => $cuotaSugerida,
+                'saldoPendiente' => $saldoPendiente,
+                'totalPagado' => $totalPagado,
+                'totalDeuda' => $totalDeuda
             ];
         }
 
         return $prestamos;
     }
 
-    public function registrarCuotaMensual($idPrestamo, $idAsociado) {
-        [$inicioMes, $inicioMesSiguiente, $fechaPago] = $this->rangoMesActual();
+    public function registrarCuotaMensual($idPrestamo, $idAsociado, $montoAbono = null) {
+        $zonaHoraria = new DateTimeZone('America/Bogota');
+        $fechaPago = (new DateTimeImmutable('today', $zonaHoraria))->format('Y-m-d');
         $this->conexion->beginTransaction();
 
         try {
             $consulta = $this->conexion->prepare(
                 "SELECT idPrestamo, valorPrestamo, tasaInteres, numeroCuotas
                  FROM prestamos
-                 WHERE idPrestamo = :idPrestamo AND idAsociado = :idAsociado
+                 WHERE idPrestamo = :idPrestamo AND idAsociado = :idAsociado AND estado = 'Aprobado'
                  FOR UPDATE"
             );
             $consulta->execute([
@@ -89,37 +99,47 @@ class Pago {
             $prestamo = $consulta->fetch();
 
             if (!$prestamo) {
-                throw new Exception('No se encontró el préstamo asociado a tu cuenta');
+                throw new Exception('No se encontró el préstamo aprobado asociado a tu cuenta');
             }
 
-            $resumen = $this->resumenCuotas(
-                $idPrestamo,
-                $inicioMes,
-                $inicioMesSiguiente
+            $consultaPagos = $this->conexion->prepare(
+                "SELECT COALESCE(SUM(valorCuota), 0) AS totalPagado, COUNT(*) AS cantidadPagos
+                 FROM pagos_cuotas
+                 WHERE idPrestamo = :idPrestamo"
             );
-            if ((int) $resumen['pagosMes'] > 0) {
-                throw new Exception('Ya realizaste el pago correspondiente a este préstamo este mes');
-            }
+            $consultaPagos->execute([':idPrestamo' => $idPrestamo]);
+            $resumen = $consultaPagos->fetch();
 
             $numeroCuotas = (int) $prestamo['numeroCuotas'];
-            if ((int) $resumen['cantidadPagos'] >= $numeroCuotas) {
-                throw new Exception('Este préstamo ya tiene todas sus cuotas pagadas');
-            }
-
             $cuotaMensual = $this->calcularCuotaMensual(
                 (float) $prestamo['valorPrestamo'],
                 (float) $prestamo['tasaInteres'],
                 $numeroCuotas
             );
-            $saldoPendiente = round(
-                $cuotaMensual * $numeroCuotas - (float) $resumen['totalPagado'],
-                2
-            );
+            $totalDeuda = round($cuotaMensual * $numeroCuotas, 2);
+            $totalPagado = round((float) $resumen['totalPagado'], 2);
+            $saldoPendiente = round($totalDeuda - $totalPagado, 2);
+
             if ($saldoPendiente <= 0) {
                 throw new Exception('Este préstamo ya está totalmente cancelado');
             }
 
-            $valorCuota = round(min($cuotaMensual, $saldoPendiente), 2);
+            // El usuario decide la cantidad a pagar sin límite de cuotas o frecuencia
+            if ($montoAbono !== null && (float)$montoAbono > 0) {
+                $valorCuota = round((float)$montoAbono, 2);
+            } else {
+                $valorCuota = round(min($cuotaMensual, $saldoPendiente), 2);
+            }
+
+            if ($valorCuota <= 0) {
+                throw new Exception('El valor del pago debe ser mayor a 0');
+            }
+
+            // Si el monto supera el saldo restante, se ajusta al saldo pendiente
+            if ($valorCuota > $saldoPendiente) {
+                $valorCuota = $saldoPendiente;
+            }
+
             $consulta = $this->conexion->prepare(
                 "INSERT INTO pagos_cuotas (valorCuota, fechaPago, idPrestamo)
                  VALUES (:valorCuota, :fechaPago, :idPrestamo)"
@@ -135,7 +155,8 @@ class Pago {
             return [
                 'idPago' => $idPago,
                 'valorCuota' => $valorCuota,
-                'fechaPago' => $fechaPago
+                'fechaPago' => $fechaPago,
+                'saldoRestante' => max(0, round($saldoPendiente - $valorCuota, 2))
             ];
         } catch (Throwable $e) {
             if ($this->conexion->inTransaction()) {

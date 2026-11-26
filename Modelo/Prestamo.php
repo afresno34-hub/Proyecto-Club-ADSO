@@ -11,6 +11,7 @@ class Prestamo {
     public function listar($idAsociado = null) {
         $sql = "SELECT p.idPrestamo, p.valorPrestamo, p.tasaInteres,
                        p.numeroCuotas, p.fechaPrestamo, p.idAsociado,
+                       p.estado,
                        a.documento, a.nombres, a.apellidos
                 FROM prestamos p
                 JOIN asociados a ON a.idAsociado = p.idAsociado";
@@ -21,7 +22,7 @@ class Prestamo {
             $parametros[':idAsociado'] = $idAsociado;
         }
 
-        $sql .= " ORDER BY p.fechaPrestamo DESC";
+        $sql .= " ORDER BY p.fechaPrestamo DESC, p.idPrestamo DESC";
         $consulta = $this->conexion->prepare($sql);
         $consulta->execute($parametros);
         return $consulta->fetchAll();
@@ -36,18 +37,34 @@ class Prestamo {
     }
 
     public function guardar($datos) {
+        $estado = $datos['estado'] ?? 'Aprobado';
         $consulta = $this->conexion->prepare(
             "INSERT INTO prestamos
-             (valorPrestamo, tasaInteres, numeroCuotas, fechaPrestamo, idAsociado)
-             VALUES (:valorPrestamo, :tasaInteres, :numeroCuotas, :fechaPrestamo, :idAsociado)"
+             (valorPrestamo, tasaInteres, numeroCuotas, fechaPrestamo, idAsociado, estado)
+             VALUES (:valorPrestamo, :tasaInteres, :numeroCuotas, :fechaPrestamo, :idAsociado, :estado)"
         );
         return $consulta->execute([
             ':valorPrestamo' => $datos['valorPrestamo'],
             ':tasaInteres' => $datos['tasaInteres'],
             ':numeroCuotas' => $datos['numeroCuotas'],
             ':fechaPrestamo' => $datos['fechaPrestamo'],
-            ':idAsociado' => $datos['idAsociado']
+            ':idAsociado' => $datos['idAsociado'],
+            ':estado' => $estado
         ]);
+    }
+
+    public function cambiarEstado($idPrestamo, $nuevoEstado) {
+        if (!in_array($nuevoEstado, ['Pendiente', 'Aprobado', 'Rechazado'], true)) {
+            throw new Exception("Estado no válido: " . $nuevoEstado);
+        }
+        $consulta = $this->conexion->prepare(
+            "UPDATE prestamos SET estado = :estado WHERE idPrestamo = :idPrestamo"
+        );
+        $consulta->execute([
+            ':estado' => $nuevoEstado,
+            ':idPrestamo' => $idPrestamo
+        ]);
+        return $consulta->rowCount() > 0;
     }
 
     public function editar($datos) {
@@ -83,7 +100,7 @@ class Prestamo {
         $sql = "SELECT COUNT(*) AS cantidad,
                        COALESCE(SUM(valorPrestamo), 0) AS total
                 FROM prestamos
-                WHERE idAsociado = :idAsociado";
+                WHERE idAsociado = :idAsociado AND estado <> 'Rechazado'";
 
         $parametros = [':idAsociado' => $idAsociado];
 

@@ -43,7 +43,7 @@ try {
 
     $rol = mb_strtolower(trim((string) $rolSesion), 'UTF-8');
     $esAdministrador = in_array($rol, ['admin', 'administrador'], true);
-    if ($metodo !== 'GET' && !$esAdministrador) {
+    if (!$esAdministrador && !in_array($metodo, ['GET', 'POST'], true)) {
         http_response_code(403);
         throw new Exception('No tienes permisos para realizar esta acción');
     }
@@ -80,7 +80,34 @@ try {
         }
     }
 
+    // Acción para cambiar estado (Aprobar / Rechazar) - Solo Administrador
+    if (isset($datos['accion']) && $datos['accion'] === 'cambiarEstado') {
+        if (!$esAdministrador) {
+            http_response_code(403);
+            throw new Exception('Solo los administradores pueden cambiar el estado del préstamo');
+        }
+        $idPrestamo = filter_var($datos['idPrestamo'] ?? null, FILTER_VALIDATE_INT);
+        $nuevoEstado = trim((string)($datos['estado'] ?? ''));
+        if (!$idPrestamo || !in_array($nuevoEstado, ['Pendiente', 'Aprobado', 'Rechazado'], true)) {
+            http_response_code(400);
+            throw new Exception('Identificador o estado de préstamo no válido');
+        }
+        if (!$prestamo->cambiarEstado($idPrestamo, $nuevoEstado)) {
+            http_response_code(404);
+            throw new Exception('No fue posible actualizar el estado del préstamo');
+        }
+        echo json_encode([
+            'success' => true,
+            'message' => "Préstamo {$nuevoEstado} exitosamente"
+        ]);
+        exit;
+    }
+
     if ($metodo === 'DELETE') {
+        if (!$esAdministrador) {
+            http_response_code(403);
+            throw new Exception('Solo los administradores pueden eliminar préstamos');
+        }
         $idPrestamo = filter_var($datos['idPrestamo'] ?? null, FILTER_VALIDATE_INT);
         if (!$idPrestamo || !$prestamo->eliminar($idPrestamo)) {
             http_response_code(404);
@@ -90,7 +117,11 @@ try {
         exit;
     }
 
-    $documento = trim((string) ($datos['documento'] ?? ''));
+    if (!$esAdministrador) {
+        $documento = trim((string) $docSesion);
+    } else {
+        $documento = trim((string) ($datos['documento'] ?? ''));
+    }
     $asociado = $prestamo->buscarAsociado($documento);
     if (!$asociado) {
         http_response_code(404);
@@ -149,14 +180,29 @@ try {
         throw new Exception('El total de préstamos superaría el límite de 80 millones de pesos');
     }
 
+    if (!$esAdministrador) {
+        $campos['estado'] = 'Pendiente';
+    } else {
+        $campos['estado'] = in_array($datos['estado'] ?? '', ['Pendiente', 'Aprobado', 'Rechazado'], true)
+            ? $datos['estado']
+            : 'Aprobado';
+    }
+
     if ($metodo === 'POST') {
         if (!$prestamo->guardar($campos)) {
             http_response_code(500);
             throw new Exception('No fue posible guardar el préstamo');
         }
         http_response_code(201);
-        echo json_encode(['success' => true, 'message' => 'Préstamo registrado exitosamente']);
+        $mensajeExito = ($campos['estado'] === 'Pendiente')
+            ? 'Solicitud de préstamo enviada exitosamente. Está pendiente de aprobación por el Administrador.'
+            : 'Préstamo registrado exitosamente';
+        echo json_encode(['success' => true, 'message' => $mensajeExito]);
     } else {
+        if (!$esAdministrador) {
+            http_response_code(403);
+            throw new Exception('No tienes permisos para editar préstamos');
+        }
         if (!$prestamo->editar($campos)) {
             http_response_code(404);
             throw new Exception('No se encontró el préstamo para actualizar');

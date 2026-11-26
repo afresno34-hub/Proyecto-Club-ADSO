@@ -61,12 +61,31 @@ async function cargarPrestamos() {
     }
 }
 
+function crearCeldaEstado(estado) {
+    const celda = document.createElement("td");
+    celda.className = "text-center";
+    const badge = document.createElement("span");
+    const estadoLimpio = (estado || "Aprobado").trim();
+    if (estadoLimpio === "Pendiente") {
+        badge.className = "badge bg-warning text-dark px-2 py-1";
+        badge.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Pendiente';
+    } else if (estadoLimpio === "Rechazado") {
+        badge.className = "badge bg-danger px-2 py-1";
+        badge.innerHTML = '<i class="bi bi-x-circle me-1"></i>Rechazado';
+    } else {
+        badge.className = "badge bg-success px-2 py-1";
+        badge.innerHTML = '<i class="bi bi-check-circle me-1"></i>Aprobado';
+    }
+    celda.append(badge);
+    return celda;
+}
+
 function mostrarPrestamos(prestamos) {
     if (!listaPrestamos) return;
     listaPrestamos.replaceChildren();
 
     if (!prestamos || prestamos.length === 0) {
-        const totalColumnas = esAdministrador ? 7 : 6;
+        const totalColumnas = esAdministrador ? 8 : 7;
         listaPrestamos.innerHTML =
             `<tr><td colspan="${totalColumnas}" class="text-center py-4 text-muted">No hay préstamos registrados.</td></tr>`;
         return;
@@ -82,12 +101,31 @@ function mostrarPrestamos(prestamos) {
             crearCelda(formatearMoneda(prestamo.valorPrestamo), "fw-bold"),
             crearCelda(prestamo.tasaInteres + "%"),
             crearCelda(prestamo.numeroCuotas),
-            crearCelda(prestamo.fechaPrestamo)
+            crearCelda(prestamo.fechaPrestamo),
+            crearCeldaEstado(prestamo.estado)
         );
 
         if (esAdministrador) {
             const acciones = document.createElement("td");
             acciones.className = "text-nowrap text-center";
+
+            if (prestamo.estado === "Pendiente") {
+                const botonAprobar = document.createElement("button");
+                botonAprobar.type = "button";
+                botonAprobar.className = "btn btn-sm btn-success me-1";
+                botonAprobar.title = "Aprobar préstamo";
+                botonAprobar.innerHTML = '<i class="bi bi-check-lg"></i> Aprobar';
+                botonAprobar.addEventListener("click", () => cambiarEstadoPrestamo(prestamo.idPrestamo, "Aprobado"));
+
+                const botonRechazar = document.createElement("button");
+                botonRechazar.type = "button";
+                botonRechazar.className = "btn btn-sm btn-danger me-1";
+                botonRechazar.title = "Rechazar préstamo";
+                botonRechazar.innerHTML = '<i class="bi bi-x-lg"></i> Rechazar';
+                botonRechazar.addEventListener("click", () => cambiarEstadoPrestamo(prestamo.idPrestamo, "Rechazado"));
+
+                acciones.append(botonAprobar, botonRechazar);
+            }
 
             const botonEditar = document.createElement("button");
             botonEditar.type = "button";
@@ -98,7 +136,7 @@ function mostrarPrestamos(prestamos) {
 
             const botonEliminar = document.createElement("button");
             botonEliminar.type = "button";
-            botonEliminar.className = "btn-accion-eliminar";
+            botonEliminar.className = "btn-accion-eliminar ms-1";
             botonEliminar.title = "Eliminar préstamo";
             botonEliminar.innerHTML = '<i class="bi bi-trash"></i>';
             botonEliminar.addEventListener("click", () => eliminarPrestamo(prestamo));
@@ -159,11 +197,34 @@ function editarPrestamo(prestamo) {
     document.getElementById("numeroCuotas").value = prestamo.numeroCuotas;
     document.getElementById("fechaPrestamo").value = prestamo.fechaPrestamo;
 
+    const selectEstado = document.getElementById("estado");
+    if (selectEstado) {
+        selectEstado.value = prestamo.estado || "Aprobado";
+    }
+
     if (tituloModalPrestamo) tituloModalPrestamo.textContent = "Editar Préstamo";
     
     const modalEl = document.getElementById("modalPrestamo");
     if (modalEl && typeof bootstrap !== "undefined") {
         bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+}
+
+async function cambiarEstadoPrestamo(idPrestamo, nuevoEstado) {
+    const accionTexto = nuevoEstado === "Aprobado" ? "aprobar" : "rechazar";
+    if (!confirm(`¿Estás seguro de que deseas ${accionTexto} esta solicitud de préstamo?`)) {
+        return;
+    }
+    try {
+        const resultado = await solicitarPrestamos("POST", {
+            accion: "cambiarEstado",
+            idPrestamo: idPrestamo,
+            estado: nuevoEstado
+        });
+        alert(resultado.message || `Préstamo ${nuevoEstado} exitosamente`);
+        await cargarPrestamos();
+    } catch (error) {
+        alert(error.message);
     }
 }
 

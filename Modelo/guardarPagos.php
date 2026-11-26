@@ -85,11 +85,17 @@ try {
             throw new Exception('No se encontró el asociado de la sesión');
         }
 
-        $pagoRegistrado = $pago->registrarCuotaMensual($idPrestamo, $idAsociado);
+        $montoPago = isset($datos['valorCuota']) ? filter_var($datos['valorCuota'], FILTER_VALIDATE_FLOAT) : null;
+        if ($montoPago !== null && $montoPago <= 0) {
+            http_response_code(400);
+            throw new Exception('El valor a pagar debe ser mayor a 0');
+        }
+
+        $pagoRegistrado = $pago->registrarCuotaMensual($idPrestamo, $idAsociado, $montoPago);
         http_response_code(201);
         echo json_encode([
             'success' => true,
-            'message' => 'Cuota mensual registrada correctamente',
+            'message' => 'Pago registrado correctamente por valor de $' . number_format($pagoRegistrado['valorCuota'], 2),
             'pago' => $pagoRegistrado
         ]);
         exit;

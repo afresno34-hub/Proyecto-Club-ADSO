@@ -59,6 +59,9 @@
         <h3 class="m-0">CLUB ACERIAS - Panel principal</h3>
         <div class="text-end">
             <span class="me-3 fw-bold" id="nombreUsuario"></span>
+            <a href="perfil.html" class="btn btn-warning btn-sm me-2 fw-bold text-dark">
+                <i class="bi bi-person-circle"></i> Mi Perfil
+            </a>
             <button class="btn btn-danger btn-sm" onclick="cerrarSesion()">
                 <i class="bi bi-box-arrow-right"></i> Cerrar sesión
             </button>
@@ -66,14 +69,6 @@
     </div>
 
     <div class="container py-4">
-        <!-- Pestañas de acceso directo -->
-        <div class="d-flex flex-wrap gap-2 mb-4">
-            <a href="listaAsociados.html" class="nav-link-tab solo-admin"><i class="bi bi-people"></i> Asociados</a>
-            <a href="actividades.html" class="nav-link-tab"><i class="bi bi-bar-chart-line"></i> Actividades</a>
-            <a href="prestamos.html" class="nav-link-tab"><i class="bi bi-person-check"></i> Préstamos</a>
-            <a href="pagos.html" class="nav-link-tab"><i class="bi bi-cash-coin"></i> Pagos</a>
-        </div>
-
         <h5 class="mb-4 fw-bold text-dark">Módulos del club de asociados</h5>
 
         <div id="tarjetasAdministrador" class="row g-4">
@@ -123,7 +118,18 @@
         </div>
 
         <div id="tarjetasAsociado" class="row g-4 d-none">
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="card modulo-card asociado shadow-sm p-3" onclick="window.location.href='perfil.html'">
+                    <i class="bi bi-person-circle icono-principal text-success"></i>
+                    <h4 class="text-success">Mi Perfil</h4>
+                    <strong>Datos y Préstamos</strong>
+                    <p class="small text-muted mt-2">
+                        Consulta y edita tus datos personales, y solicita nuevos préstamos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
                 <div class="card modulo-card asociado shadow-sm p-3" onclick="window.location.href='actividades.html'">
                     <i class="bi bi-calendar-event icono-principal text-success"></i>
                     <h4 class="text-success">Actividades</h4>
@@ -134,7 +140,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card modulo-card asociado shadow-sm p-3" onclick="window.location.href='prestamos.html'">
                     <i class="bi bi-cash-coin icono-principal text-success"></i>
                     <h4 class="text-success">Mis Préstamos</h4>
@@ -145,7 +151,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card modulo-card asociado shadow-sm p-3" onclick="window.location.href='pagos.html'">
                     <i class="bi bi-credit-card icono-principal text-success"></i>
                     <h4 class="text-success">Mis Pagos</h4>

@@ -65,6 +65,7 @@
             <a href="registrarActividad.html" class="pestana solo-admin">➕ Nueva Actividad</a>
             <a href="prestamos.html" class="pestana activa">💰 Préstamos</a>
             <a href="pagos.html" class="pestana">💳 Pagos</a>
+            <a href="perfil.html" class="pestana">👤 Mi Perfil</a>
         </nav>
 
         <div class="cabecera-listado">
@@ -89,12 +90,13 @@
                         <th>Tasa Interés</th>
                         <th>Cuotas</th>
                         <th>Fecha Préstamo</th>
+                        <th style="text-align: center;">Estado</th>
                         <th id="encabezadoAcciones" class="d-none" style="text-align: center;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="listaPrestamos">
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 25px; color: #64748b; background-color: #ffffff;">
+                        <td colspan="8" style="text-align: center; padding: 25px; color: #64748b; background-color: #ffffff;">
                             Cargando préstamos...
                         </td>
                     </tr>
@@ -138,6 +140,15 @@
                         <div class="grupo-input">
                             <label for="fechaPrestamo">Fecha del Préstamo:</label>
                             <input type="date" id="fechaPrestamo" name="fechaPrestamo" required>
+                        </div>
+
+                        <div class="grupo-input" id="grupoEstadoPrestamo">
+                            <label for="estado">Estado del Préstamo:</label>
+                            <select id="estado" name="estado">
+                                <option value="Aprobado" selected>Aprobado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Rechazado">Rechazado</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer" style="border-top: 2px solid #04fd43;">

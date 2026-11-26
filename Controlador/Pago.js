@@ -67,7 +67,6 @@ async function cargarPagos() {
 function configurarFormularioPago() {
     const grupoPrestamoAdmin = document.getElementById("grupoPrestamoAdmin");
     const grupoPrestamoAsociado = document.getElementById("grupoPrestamoAsociado");
-    const camposAdministrador = document.getElementById("camposPagoAdministrador");
     const infoCuotaAsociado = document.getElementById("infoCuotaAsociado");
     const valorCuota = document.getElementById("valorCuota");
     const fechaPago = document.getElementById("fechaPago");
@@ -80,9 +79,15 @@ function configurarFormularioPago() {
     if (grupoPrestamoAsociado) grupoPrestamoAsociado.classList.toggle("d-none", !esAsociado);
     if (idPrestamoAsociado) idPrestamoAsociado.disabled = !esAsociado;
 
-    if (camposAdministrador) camposAdministrador.classList.toggle("d-none", esAsociado);
-    if (valorCuota) valorCuota.disabled = esAsociado;
-    if (fechaPago) fechaPago.disabled = esAsociado;
+    // El valor de la cuota está SIEMPRE habilitado para que el usuario pague lo que decida
+    if (valorCuota) {
+        valorCuota.disabled = false;
+    }
+
+    if (fechaPago) {
+        fechaPago.value = new Date().toISOString().split("T")[0];
+    }
+
     if (infoCuotaAsociado) infoCuotaAsociado.classList.toggle("d-none", !esAsociado);
 
     if (nuevoPago) {
@@ -94,11 +99,36 @@ function configurarFormularioPago() {
     }
 
     if (tituloModalPago) {
-        tituloModalPago.textContent = esAsociado ? "Pago de Cuota Mensual" : "Registro de Pago";
+        tituloModalPago.textContent = esAsociado ? "Pago de Préstamo / Abono a Capital" : "Registro de Pago";
     }
 
     if (btnSubmit) {
-        btnSubmit.textContent = esAsociado ? "Pagar Cuota de Este Mes" : "Registrar Pago";
+        btnSubmit.textContent = esAsociado ? "Confirmar Pago" : "Registrar Pago";
+    }
+
+    // Botones rápidos de ayuda
+    const btnCuotaSugerida = document.getElementById("btnCuotaSugerida");
+    if (btnCuotaSugerida) {
+        btnCuotaSugerida.onclick = () => {
+            const prestamoSel = prestamosParaPago.find(
+                (p) => String(p.idPrestamo) === idPrestamoAsociado.value
+            );
+            if (prestamoSel && valorCuota) {
+                valorCuota.value = prestamoSel.cuotaSugerida || prestamoSel.valorCuota;
+            }
+        };
+    }
+
+    const btnSaldoTotal = document.getElementById("btnSaldoTotal");
+    if (btnSaldoTotal) {
+        btnSaldoTotal.onclick = () => {
+            const prestamoSel = prestamosParaPago.find(
+                (p) => String(p.idPrestamo) === idPrestamoAsociado.value
+            );
+            if (prestamoSel && valorCuota) {
+                valorCuota.value = prestamoSel.saldoPendiente;
+            }
+        };
     }
 
     if (idPrestamoAsociado) {
@@ -107,13 +137,13 @@ function configurarFormularioPago() {
         opcionInicial.value = "";
         opcionInicial.textContent = prestamosParaPago.length
             ? "Selecciona un préstamo a pagar..."
-            : "No tienes cuotas disponibles este mes";
+            : "No tienes préstamos pendientes de pago";
         idPrestamoAsociado.append(opcionInicial);
 
         prestamosParaPago.forEach((prestamo) => {
             const opcion = document.createElement("option");
             opcion.value = prestamo.idPrestamo;
-            opcion.textContent = `Préstamo #${prestamo.idPrestamo} — Cuota: ${formatearMoneda(prestamo.valorCuota)}`;
+            opcion.textContent = `Préstamo #${prestamo.idPrestamo} — Saldo pendiente: ${formatearMoneda(prestamo.saldoPendiente)}`;
             idPrestamoAsociado.append(opcion);
         });
 
@@ -127,10 +157,21 @@ function actualizarCuotaAsociado() {
         (prestamo) => String(prestamo.idPrestamo) === idPrestamoAsociado.value
     );
     const cuotaEl = document.getElementById("valorCuotaAsociado");
-    if (cuotaEl) {
-        cuotaEl.textContent = prestamoSeleccionado
-            ? formatearMoneda(prestamoSeleccionado.valorCuota)
-            : "Selecciona un préstamo";
+    const saldoEl = document.getElementById("saldoPendienteAsociado");
+    const valorInput = document.getElementById("valorCuota");
+
+    if (prestamoSeleccionado) {
+        const montoCuota = prestamoSeleccionado.cuotaSugerida || prestamoSeleccionado.valorCuota;
+        if (cuotaEl) cuotaEl.textContent = formatearMoneda(montoCuota);
+        if (saldoEl) saldoEl.textContent = formatearMoneda(prestamoSeleccionado.saldoPendiente);
+        if (valorInput) {
+            valorInput.value = montoCuota;
+            valorInput.max = prestamoSeleccionado.saldoPendiente;
+        }
+    } else {
+        if (cuotaEl) cuotaEl.textContent = "Selecciona un préstamo";
+        if (saldoEl) saldoEl.textContent = "$ 0";
+        if (valorInput) valorInput.value = "";
     }
 }
 
@@ -202,12 +243,20 @@ if (formularioPago) {
 
         try {
             if (esAsociado) {
-                datos = { idPrestamo: Number(idPrestamoAsociado.value) };
-                if (!datos.idPrestamo) {
-                    throw new Error("Selecciona un préstamo con cuota disponible.");
+                const idPres = Number(idPrestamoAsociado.value);
+                const montoAbono = parseFloat(document.getElementById("valorCuota").value);
+                if (!idPres) {
+                    throw new Error("Selecciona un préstamo a pagar.");
                 }
-                await solicitarPagos("POST", datos);
-                alert("¡Cuota mensual registrada exitosamente!");
+                if (!montoAbono || montoAbono <= 0) {
+                    throw new Error("Ingresa la cantidad válida que deseas pagar.");
+                }
+                datos = {
+                    idPrestamo: idPres,
+                    valorCuota: montoAbono
+                };
+                const res = await solicitarPagos("POST", datos);
+                alert(res.message || "¡Pago registrado exitosamente!");
             } else if (idPago) {
                 datos.idPago = Number(idPago);
                 await solicitarPagos("PUT", datos);
