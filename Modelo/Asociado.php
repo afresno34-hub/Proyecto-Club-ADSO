@@ -15,7 +15,7 @@ class Asociado {
     private $rol;
     private $conexion;
 
-    public function __construct($datos) {
+    public function __construct($datos = []) {
         $this->documento = $datos['documento'] ?? '';
         $this->nombres = $datos['nombres'] ?? '';
         $this->apellidos = $datos['apellidos'] ?? '';
@@ -26,8 +26,8 @@ class Asociado {
         $this->genero = $datos['genero'] ?? 'Otro';
         
         $this->fechaNacimiento = $datos['fechaNacimiento'] ?? '';
-        $this->contraseña = password_hash($datos['contrasena'], PASSWORD_DEFAULT);
-        $this->rol = $datos['rol'] ?? 'Asociado';
+        $this->contraseña = !empty($datos['contrasena']) ? password_hash($datos['contrasena'], PASSWORD_DEFAULT) : '';
+        $this->rol = (isset($datos['rol']) && strtolower($datos['rol']) === 'admin') ? 'Admin' : 'Asociado';
 
         $conexion = new Conexion();
         $this->conexion = $conexion->conectar();
@@ -61,5 +61,19 @@ class Asociado {
             }
             throw $e;
         }
+    }
+
+    public function obtenerAsociados() {
+        $sql = "SELECT idAsociado, documento, nombres, apellidos, direccionResidencia, ciudad, telefono, email, genero, fechaNacimiento, Rol FROM asociados ORDER BY idAsociado DESC";
+        $consulta = $this->conexion->prepare($sql);
+        $consulta->execute();
+        return $consulta->fetchAll();
+    }
+
+    public function eliminar($idAsociado) {
+        $sql = "DELETE FROM asociados WHERE idAsociado = :idAsociado";
+        $consulta = $this->conexion->prepare($sql);
+        $consulta->execute([":idAsociado" => $idAsociado]);
+        return $consulta->rowCount() > 0;
     }
 }

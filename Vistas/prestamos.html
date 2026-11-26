@@ -9,18 +9,20 @@
     <div class="Contenedor-Formulario">
         <nav class="nav-pestanas">
             <a href="dashboard.html" class="pestana volver">⬅ Panel</a>
-            <a href="asociados.html" class="pestana">Asociados</a>
-            <a href="actividades.html" class="pestana">Actividades</a>
-            <a href="prestamos.html" class="pestana activa">Préstamos</a>
-            <a href="pagos.html" class="pestana">Pagos</a>
+            <a href="listaAsociados.html" class="pestana">👥 Asociados</a>
+            <a href="asociados.html" class="pestana">➕ Nuevo Asociado</a>
+            <a href="actividades.html" class="pestana">📋 Listado Actividades</a>
+            <a href="registrarActividad.html" class="pestana">➕ Nueva Actividad</a>
+            <a href="prestamos.html" class="pestana activa">💰 Préstamos</a>
+            <a href="pagos.html" class="pestana">💳 Pagos</a>
         </nav>
 
         <h2>Registro de Préstamos</h2>
         <form id="formPrestamos" action="" method="POST">
             
             <div class="grupo-input">
-                <label for="asociadoPrestamo">Asociado Solicitante:</label>
-                <select id="asociadoPrestamo" required>
+                <label for="idAsociado">Asociado Solicitante:</label>
+                <select id="idAsociado" name="idAsociado" required>
                     <option value="">Seleccione un asociado...</option>
                     <option value="1">Juan Pérez</option>
                     <option value="2">María Gómez</option>
@@ -28,18 +30,23 @@
             </div>
 
             <div class="grupo-input">
-                <label for="montoPrestamo">Monto del Préstamo:</label>
-                <input id="montoPrestamo" type="number" required placeholder="Ej. 200000">
+                <label for="valorPrestamo">Valor del Préstamo:</label>
+                <input id="valorPrestamo" name="valorPrestamo" type="number" step="0.01" required placeholder="Ej. 200000">
             </div>
 
             <div class="grupo-input">
-                <label for="interes">Tasa de Interés (%):</label>
-                <input id="interes" type="text" required placeholder="Ej. 2%">
+                <label for="tasaInteres">Tasa de Interés (%):</label>
+                <input id="tasaInteres" name="tasaInteres" type="number" step="0.01" required placeholder="Ej. 2">
             </div>
 
             <div class="grupo-input">
-                <label for="plazo">Plazo (Meses):</label>
-                <input id="plazo" type="number" required placeholder="Ej. 6">
+                <label for="numeroCuotas">Número de Cuotas:</label>
+                <input id="numeroCuotas" name="numeroCuotas" type="number" required placeholder="Ej. 6">
+            </div>
+
+            <div class="grupo-input">
+                <label for="fechaPrestamo">Fecha del Préstamo:</label>
+                <input id="fechaPrestamo" name="fechaPrestamo" type="date" required>
             </div>
 
             <div class="grupo-botones">

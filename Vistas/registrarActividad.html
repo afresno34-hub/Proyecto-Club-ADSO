@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Actividad - MR CLUB</title>
+    <link rel="stylesheet" href="../assets/css/estilos.css">
+</head>
+<body>
+    <div class="Contenedor-Formulario">
+        <nav class="nav-pestanas">
+            <a href="dashboard.html" class="pestana volver">⬅ Panel</a>
+            <a href="listaAsociados.html" class="pestana">👥 Asociados</a>
+            <a href="asociados.html" class="pestana">➕ Nuevo Asociado</a>
+            <a href="actividades.html" class="pestana">📋 Listado Actividades</a>
+            <a href="registrarActividad.html" class="pestana activa">➕ Nueva Actividad</a>
+            <a href="prestamos.html" class="pestana">💰 Préstamos</a>
+            <a href="pagos.html" class="pestana">💳 Pagos</a>
+        </nav>
+
+        <h2>Registrar Nueva Actividad</h2>
+        <form id="formRegistrarActividad">
+            
+            <div class="grupo-input">
+                <label for="nombreActividad">Nombre de la Actividad:</label>
+                <input id="nombreActividad" name="nombreActividad" type="text" required placeholder="Ej. Torneo de Fútbol Relámpago">
+            </div>
+
+            <div class="grupo-input">
+                <label for="fechaEvento">Fecha del Evento:</label>
+                <input id="fechaEvento" name="fechaEvento" type="date" required>
+            </div>
+
+            <div class="grupo-input">
+                <label for="municipio">Municipio:</label>
+                <input id="municipio" name="municipio" type="text" required placeholder="Ej. Sogamoso">
+            </div>
+
+            <div class="grupo-input">
+                <label for="totalRecaudado">Total Recaudado (opcional):</label>
+                <input id="totalRecaudado" name="totalRecaudado" type="number" step="0.01" placeholder="Ej. 500000">
+            </div>
+
+            <div class="grupo-botones">
+                <button type="submit" id="btnGuardar">Guardar Actividad</button>
+                <button type="reset">Limpiar</button>
+            </div>
+
+            <p id="mensajeActividad" role="status" aria-live="polite" style="text-align: center; font-weight: bold; margin-top: 15px;"></p>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('formRegistrarActividad');
+        const mensajeEl = document.getElementById('mensajeActividad');
+        const btnGuardar = document.getElementById('btnGuardar');
+        const inputFecha = document.getElementById('fechaEvento');
+
+        // Bloquear fechas anteriores a hoy en el selector
+        const hoy = new Date().toISOString().split('T')[0];
+        if (inputFecha) {
+            inputFecha.min = hoy;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btnGuardar.disabled = true;
+            mensajeEl.textContent = 'Guardando actividad...';
+            mensajeEl.style.color = '#333';
+
+            const fechaSeleccionada = inputFecha.value;
+            if (fechaSeleccionada < hoy) {
+                mensajeEl.textContent = 'Error: La fecha del evento no puede ser una fecha pasada (anterior a hoy).';
+                mensajeEl.style.color = 'red';
+                btnGuardar.disabled = false;
+                return;
+            }
+
+            const datos = {
+                nombreActividad: document.getElementById('nombreActividad').value.trim(),
+                fechaEvento: fechaSeleccionada,
+                municipio: document.getElementById('municipio').value.trim(),
+                totalRecaudado: parseFloat(document.getElementById('totalRecaudado').value) || 0
+            };
+
+            try {
+                const res = await fetch('../Modelo/gestionarActividades.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                
+                const textoRespuesta = await res.text();
+                let resultado;
+                try {
+                    resultado = JSON.parse(textoRespuesta);
+                } catch {
+                    // Si el servidor respondió con HTML o texto plano, extraer el mensaje
+                    const textoLimpio = textoRespuesta.replace(/<[^>]*>?/gm, '').trim();
+                    throw new Error(textoLimpio || `Error en el servidor (HTTP ${res.status})`);
+                }
+
+                if (res.status === 401) {
+                    alert('Tu sesión ha expirado o no has iniciado sesión. Serás redirigido al login.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (!res.ok || !resultado.success) {
+                    throw new Error(resultado.message || 'Error al guardar la actividad');
+                }
+
+                mensajeEl.textContent = '¡Actividad guardada exitosamente! Redirigiendo al listado...';
+                mensajeEl.style.color = 'green';
+                form.reset();
+
+                setTimeout(() => {
+                    window.location.href = 'actividades.html';
+                }, 1000);
+
+            } catch (err) {
+                mensajeEl.textContent = err.message;
+                mensajeEl.style.color = 'red';
+            } finally {
+                btnGuardar.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
