@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function cerrarSesion() {
     try {
-        await fetch("../Modelo/cerrarSesion.php", { method: "POST" });
+        await fetch("../Modelo/CerrarSesion.php", { method: "POST" });
     } catch (error) {
         console.error("Error al notificar cierre de sesión al servidor:", error);
     } finally {

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Actividad - MR CLUB</title>
     <link rel="stylesheet" href="../assets/css/estilos.css">
+    <script src="../assets/js/permisos.js"></script>
 </head>
 <body>
     <div class="Contenedor-Formulario">
@@ -41,6 +42,14 @@
                 <input id="totalRecaudado" name="totalRecaudado" type="number" step="0.01" placeholder="Ej. 500000">
             </div>
 
+            <div class="grupo-input">
+                <label for="estado">Estado de la Actividad:</label>
+                <select id="estado" name="estado" required>
+                    <option value="Programada" selected>Programada</option>
+                    <option value="En curso">En curso</option>
+                </select>
+            </div>
+
             <div class="grupo-botones">
                 <button type="submit" id="btnGuardar">Guardar Actividad</button>
                 <button type="reset">Limpiar</button>
@@ -51,10 +60,17 @@
     </div>
 
     <script>
+        const rol = (localStorage.getItem('rol') || '').trim().toLowerCase();
+        if (rol !== 'admin' && rol !== 'administrador') {
+            alert('Acceso restringido: Solo los administradores pueden registrar actividades.');
+            window.location.replace('actividades.html');
+        }
+
         const form = document.getElementById('formRegistrarActividad');
         const mensajeEl = document.getElementById('mensajeActividad');
         const btnGuardar = document.getElementById('btnGuardar');
         const inputFecha = document.getElementById('fechaEvento');
+        const selectEstado = document.getElementById('estado');
 
         // Bloquear fechas anteriores a hoy en el selector
         const hoy = new Date().toISOString().split('T')[0];
@@ -69,7 +85,9 @@
             mensajeEl.style.color = '#333';
 
             const fechaSeleccionada = inputFecha.value;
-            if (fechaSeleccionada < hoy) {
+            const estadoSeleccionado = selectEstado ? selectEstado.value : 'Programada';
+
+            if (fechaSeleccionada < hoy && estadoSeleccionado === 'Programada') {
                 mensajeEl.textContent = 'Error: La fecha del evento no puede ser una fecha pasada (anterior a hoy).';
                 mensajeEl.style.color = 'red';
                 btnGuardar.disabled = false;
@@ -80,7 +98,8 @@
                 nombreActividad: document.getElementById('nombreActividad').value.trim(),
                 fechaEvento: fechaSeleccionada,
                 municipio: document.getElementById('municipio').value.trim(),
-                totalRecaudado: parseFloat(document.getElementById('totalRecaudado').value) || 0
+                totalRecaudado: parseFloat(document.getElementById('totalRecaudado').value) || 0,
+                estado: estadoSeleccionado
             };
 
             try {
@@ -95,7 +114,6 @@
                 try {
                     resultado = JSON.parse(textoRespuesta);
                 } catch {
-                    // Si el servidor respondió con HTML o texto plano, extraer el mensaje
                     const textoLimpio = textoRespuesta.replace(/<[^>]*>?/gm, '').trim();
                     throw new Error(textoLimpio || `Error en el servidor (HTTP ${res.status})`);
                 }

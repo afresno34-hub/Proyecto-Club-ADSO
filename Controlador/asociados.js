@@ -36,7 +36,8 @@ async function cargarAsociados() {
         asociados = resultado.asociados || [];
         mostrarAsociados();
     } catch (error) {
-        alert('Error al cargar la lista de asociados: ' + error.message);
+        alert(error.message);
+        window.location.replace('dashboard.html');
     }
 }
 
@@ -46,11 +47,7 @@ function mostrarAsociados() {
 
     const encabezadoAcciones = document.getElementById("encabezadoAcciones");
     if (encabezadoAcciones) {
-        if (esAdministrador) {
-            encabezadoAcciones.classList.remove("d-none");
-        } else {
-            encabezadoAcciones.classList.add("d-none");
-        }
+        encabezadoAcciones.classList.toggle("d-none", !esAdministrador);
     }
 
     if (asociados.length === 0) {
@@ -87,16 +84,23 @@ function mostrarAsociados() {
 
         if (esAdministrador) {
             const celdaAcciones = document.createElement('td');
-            celdaAcciones.className = 'text-nowrap';
+            celdaAcciones.className = 'text-nowrap text-center';
+
+            const botonEditar = document.createElement('button');
+            botonEditar.type = "button";
+            botonEditar.className = "btn-accion-editar me-2";
+            botonEditar.title = "Editar asociado";
+            botonEditar.innerHTML = '<i class="bi bi-pencil"></i>';
+            botonEditar.addEventListener('click', () => abrirEdicion(asociado));
 
             const botonEliminar = document.createElement('button');
             botonEliminar.type = "button";
             botonEliminar.className = "btn-accion-eliminar";
             botonEliminar.title = "Eliminar asociado";
-            botonEliminar.innerHTML = '<i class="bi bi-trash"></i> Eliminar';
+            botonEliminar.innerHTML = '<i class="bi bi-trash"></i>';
             botonEliminar.addEventListener('click', () => eliminarAsociado(asociado));
 
-            celdaAcciones.append(botonEliminar);
+            celdaAcciones.append(botonEditar, botonEliminar);
             fila.append(celdaAcciones);
         }
 
@@ -106,8 +110,56 @@ function mostrarAsociados() {
 
 function crearCelda(texto) {
     const celda = document.createElement("td");
-    celda.textContent = texto;
+    celda.textContent = texto ?? "";
     return celda;
+}
+
+function abrirEdicion(asociado) {
+    document.getElementById("editDocOriginal").value = asociado.documento;
+    document.getElementById("editNombres").value = asociado.nombres;
+    document.getElementById("editApellidos").value = asociado.apellidos;
+    document.getElementById("editTelefono").value = asociado.telefono;
+    document.getElementById("editEmail").value = asociado.email;
+    document.getElementById("editCiudad").value = asociado.ciudad;
+    document.getElementById("editDireccion").value = asociado.direccionResidencia || '';
+    document.getElementById("editGenero").value = asociado.genero || 'Otro';
+    document.getElementById("editFechaNacimiento").value = asociado.fechaNacimiento || '';
+
+    const modalEl = document.getElementById("modalEditarAsociado");
+    if (modalEl && typeof bootstrap !== "undefined") {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+}
+
+const formEditar = document.getElementById("formEditarAsociado");
+if (formEditar) {
+    formEditar.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const datos = {
+            documentoOriginal: document.getElementById("editDocOriginal").value,
+            nombres: document.getElementById("editNombres").value.trim(),
+            apellidos: document.getElementById("editApellidos").value.trim(),
+            telefono: document.getElementById("editTelefono").value.trim(),
+            email: document.getElementById("editEmail").value.trim(),
+            ciudad: document.getElementById("editCiudad").value.trim(),
+            direccionResidencia: document.getElementById("editDireccion").value.trim(),
+            genero: document.getElementById("editGenero").value,
+            fechaNacimiento: document.getElementById("editFechaNacimiento").value
+        };
+
+        try {
+            await solicitarApi("PUT", datos);
+            alert("Asociado actualizado exitosamente");
+            const modalEl = document.getElementById("modalEditarAsociado");
+            if (modalEl && typeof bootstrap !== "undefined") {
+                bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+            }
+            await cargarAsociados();
+        } catch (error) {
+            alert(error.message);
+        }
+    });
 }
 
 async function eliminarAsociado(asociado) {
@@ -115,7 +167,7 @@ async function eliminarAsociado(asociado) {
     if (!confirmar) return;
 
     try {
-        await solicitarApi("DELETE", { idAsociado: asociado.idAsociado });
+        await solicitarApi("DELETE", { idAsociado: asociado.idAsociado, documento: asociado.documento });
         alert("Asociado eliminado correctamente");
         await cargarAsociados();
     } catch (error) {
